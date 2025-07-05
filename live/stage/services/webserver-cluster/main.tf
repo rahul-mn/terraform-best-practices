@@ -13,13 +13,13 @@ terraform {
 }
 
 module "webserver_cluster" {
-source = "../../../modules/services/webserver-cluster"
-cluster_name = "cluster-stage"
-db_remote_state_bucket = "terrr-state-file"
-db_remote_state_key = "stage/data-stores/mysql/terraform.tfstate"
-instance_type = "t2.micro"
-min_size = 2
-max_size = 2
+  source = "git::ssh://git@gitlab.com/rahul-mn/terraform.git//modules/services/webserver-cluster?ref=0.0.1"
+  cluster_name = "cluster-stage"
+  db_remote_state_bucket = "terrr-state-file"
+  db_remote_state_key = "stage/data-stores/mysql/terraform.tfstate"
+  instance_type = "t2.micro"
+  min_size = 2
+  max_size = 2
 }
 
 resource "aws_security_group_rule" "allow_ssh_inbound" {
