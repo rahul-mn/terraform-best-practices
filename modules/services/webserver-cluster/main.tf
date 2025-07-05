@@ -6,17 +6,6 @@ locals {
   tcp_protocol = "tcp"
 }
 
-terraform {
-  backend "s3" {
-    bucket = "terrr-state-file"
-    key = "services/webserver-cluster/terraform.tfstate"
-    region = "us-east-1"
-
-    dynamodb_table = "terraform-locks"
-    encrypt = true
-  }
-}
-
 resource "aws_security_group" "instance" {
     name = "${var.cluster_name}-instances"
 
