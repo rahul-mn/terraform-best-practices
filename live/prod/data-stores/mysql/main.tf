@@ -1,8 +1,20 @@
 provider "aws" {
   region = "ap-south-1"
+  alias = "primary"
+}
+
+provider "aws" {
+  region = "us-east-1"
+  alias = "replica" 
 }
 
 terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "~> 6.1"
+    }
+  }
   backend "s3" {
     bucket = "terrr-state-file"
     key = "prod/data-stores/mysql/terraform.tfstate"
@@ -12,29 +24,24 @@ terraform {
   }
 }
 
-data "aws_secretsmanager_random_password" "test" {
-  password_length = 20
+module "mysql_primary" {
+  source = "../../../../modules/data-storage/mqsyl"
+
+  providers = {
+    aws = aws.primary
+  }
+  db_name = "prod_db"
+
+  backup_retention_days = 1
 }
 
-resource "aws_secretsmanager_secret" "db_secrets" {
-  name = "db-secrets"
-  description = "Password of DB"
-}
+module "mysql_replica" {
 
-resource "aws_secretsmanager_secret_version" "db_secrets_version" {
-  secret_id = aws_secretsmanager_secret.db_secrets.id
-  secret_string = data.aws_secretsmanager_random_password.test.result
-}
+  providers = {
+    aws = aws.replica
+  }
 
-resource "aws_db_instance" "example" {
-  identifier_prefix = "terraform-db"
-  engine = "mysql"
-  allocated_storage = 10
-  instance_class = "db.t4g.micro"
-  skip_final_snapshot = true
-  db_name = "exampledb"
+  source = "../../../../modules/data-storage/mqsyl"
 
-  username = var.db_password
-  password_wo = aws_secretsmanager_secret_version.db_secrets_version.secret_string
-  password_wo_version = 1
+  replicate_source_db = module.mysql_primary.arn
 }
