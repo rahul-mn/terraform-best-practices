@@ -4,18 +4,14 @@ variable "server_port" {
     default = 8080
 }
 
+variable "server_text" {
+    description = "Text the web server should return"
+    type = string
+    default = "Hello, World"
+}
+
 variable "cluster_name" {
     description = "Name for the Cluster"
-    type = string
-}
-
-variable "db_remote_state_bucket" {
-    description = "Name of the s3 Bucket for DB remote state"
-    type = string
-}
-
-variable "db_remote_state_key" {
-    description = "Path for the DB Remote state in S3"
     type = string
 }
 
@@ -23,6 +19,10 @@ variable "instance_type" {
     description = "Type of EC2 Instance"
     type = string
     default = "t2.micro"
+    validation {
+      condition = contains(["t2.micro", "t3.micro"], var.instance_type)
+      error_message = "Only free tier Instances are allowed: t2.micro | t3.micro."
+    }
 }
 
 variable "min_size" {
@@ -54,8 +54,26 @@ variable "ami" {
     default = "ami-0f918f7e67a3323f0"
 }
 
-variable "server_text" {
-    description = "Text the web server should return"
-    type = string
-    default = "Hello, World"
+variable "subnet_ids" {
+    description = "Subnet IDs to deploy to"
+    type = list(string)
+    default = []
+}
+
+variable "target_group_arn" {
+  description = "ARN of ELB Target Group in which to register instances"
+  type = list(string)
+  default = []
+}
+
+variable "health_check_type" {
+  description = "Type of Health Check to perform. Must be one of: EC2, ELB"
+  type = string
+  default = "EC2"
+}
+
+variable "user_data" {
+  description = "User Data Script to run on each instance on boot"
+  type = string
+  default = null
 }
