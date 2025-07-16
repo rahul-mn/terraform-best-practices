@@ -29,6 +29,15 @@ variable "min_size" {
   description = "Minimum Number of EC2 Instances in ASG"
   type = number
   default = 2
+
+  validation {
+    condition = var.min_size > 0
+    error_message = "ASG can't be empty or we'll have an outage."
+  }
+  validation {
+    condition = var.min_size <= 2
+    error_message = "ASGs must have 2 or fewer intances to keep cost down."
+  } 
 }
 
 variable "max_size" {
