@@ -9,6 +9,6 @@ output "asg_name" {
 }
 
 output "alb_security_group_id" {
-    value = module.asg.alb_security_group_id
+    value = module.alb.alb_security_group_id
     description = "ID of the ALB Security Group"
 }

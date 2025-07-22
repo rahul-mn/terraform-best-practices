@@ -1,3 +1,24 @@
+variable "vpc_id" {
+    description = "ID of VPC to deploy into"
+    type = string
+    default = null
+}
+
+variable "subnet_ids" {
+  description = "ID of subnets to deploy into"
+  type = list(string)
+  default = null
+}
+
+variable "mysql_config" {
+    description = "Config for the MySQL Cluster"
+    type = object({
+      address = string
+      port = number
+    })
+    default = null
+}
+
 variable "server_port" {
     description = "The Port the server will use to server HTTP Requests"
     type = number

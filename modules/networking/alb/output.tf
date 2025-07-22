@@ -3,7 +3,7 @@ output "alb_dns_name" {
   description = "DNS Name of the ALB"
 }
 
-output "alp_http_listener_arn" {
+output "alb_http_listener_arn" {
   value = aws_lb_listener.http.arn
   description = "ARN of the HTTP Listener"
 }

@@ -1,36 +1,36 @@
-data "aws_caller_identity" "self" {}
+# data "aws_caller_identity" "self" {}
 
-data "aws_iam_policy_document" "cmk_admin_policy" {
-  statement {
-    effect = "Allow"
-    actions = ["kms:*"]
-    resources = [ "*" ]
-    principals {
-      type = "AWS"
-      identifiers = [data.aws_caller_identity.self.account_id]
-  }
-}
-}
+# data "aws_iam_policy_document" "cmk_admin_policy" {
+#   statement {
+#     effect = "Allow"
+#     actions = ["kms:*"]
+#     resources = [ "*" ]
+#     principals {
+#       type = "AWS"
+#       identifiers = [data.aws_caller_identity.self.account_id]
+#   }
+# }
+# }
 
-resource "aws_kms_key" "cmk" {
-  policy = data.aws_iam_policy_document.cmk_admin_policy.json
-}
+# resource "aws_kms_key" "cmk" {
+#   policy = data.aws_iam_policy_document.cmk_admin_policy.json
+# }
 
-resource "aws_kms_alias" "cmk" {
-  name = "alias/cmk-key-db"
-  target_key_id = aws_kms_key.cmk.id
-}
+# resource "aws_kms_alias" "cmk" {
+#   name = "alias/cmk-key-db"
+#   target_key_id = aws_kms_key.cmk.id
+# }
 
-data "aws_kms_secrets" "creds" {
-  secret {
-    name = "db"
-    payload = file("${path.module}/db-creds.yml.enc")
-  }
-}
+# data "aws_kms_secrets" "creds" {
+#   secret {
+#     name = "db"
+#     payload = file("${path.module}/db-creds.yml.enc")
+#   }
+# }
 
-locals {
-  db_creds = yamldecode(data.aws_kms_secrets.creds.plaintext["db"])
-}
+# locals {
+#   db_creds = yamldecode(data.aws_kms_secrets.creds.plaintext["db"])
+# }
 
 resource "aws_db_instance" "example" {
   identifier_prefix = "terraform-db"
@@ -43,7 +43,12 @@ resource "aws_db_instance" "example" {
 
   engine = var.replicate_source_db == null ? "mysql" : null
   db_name = var.replicate_source_db == null ? var.db_name : null
-  username    = var.replicate_source_db == null ? local.db_creds.username : null
-  password_wo    = var.replicate_source_db == null ? local.db_creds.password : null
-  password_wo_version = 1
+  username = var.replicate_source_db == null ? var.db_username : null
+  password = var.replicate_source_db == null ? var.db_password : null
+
+  # Below config for KMS encrypted User passwd read
+
+  # username    = var.replicate_source_db == null ? local.db_creds.username : null
+  # password_wo    = var.replicate_source_db == null ? local.db_creds.password : null
+  # password_wo_version = 1
 }

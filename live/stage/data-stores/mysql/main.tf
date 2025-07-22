@@ -10,18 +10,14 @@ terraform {
     }
   }
   backend "s3" {
-    bucket = "terrr-state-file"
-    key = "stage/data-stores/mysql/terraform.tfstate"
-    region = "us-east-1"
-    dynamodb_table = "terraform-locks"
-    encrypt = true
   }  
 }
 
 module "mysql" {
   source = "../../../../modules/data-storage/mqsyl"
 
-  db_name = "prod_db"
-  backup_retention_days = 1
+  db_name     = var.db_name
+  db_username = var.db_username
+  db_password = var.db_password
 }
 
